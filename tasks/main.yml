@@ -9,11 +9,24 @@
     state: present
 #    update_cache: yes
   environment: "{{ proxy_env }}"
-  when: ansible_os_family == "RedHat"
   with_items:
   - nc
   - iproute
   - gawk
+  when: ansible_os_family == "RedHat"
+  tags: connectivity_install_pkg
+
+- name: Install dependent packages in Debian based machines
+  package:
+    name: "{{ item }}"
+    state: present
+#    update_cache: yes
+  environment: "{{ proxy_env }}"
+  with_items:
+  - netcat
+  - iproute
+  - gawk
+  when: ansible_os_family == "Debian"
   tags: connectivity_install_pkg
 
 - name: debug system info

@@ -7,8 +7,8 @@ Default uses TCP protocol. You can specify `protocol: udp` if UDP is needed for 
 
 ## Distros tested
 
-* RHEL/CentOS 7.x
-* RHEL/CentOS 5.9
+* Ubuntu 18.04 / 16.04
+* CentOS / RHEL: 7.x, 6.5, 5.9
 
 ## Dependencies
 
@@ -51,8 +51,7 @@ proxy_env: []
 connectivity_test_destinations:
   - { ip: 192.168.56.10, port: 22 }
   - { ip: 192.168.56.10, port: 5000 }
-  - { ip: 192.168.56.13, port: 443 }
-  - { ip: 192.168.56.13, port: 67, protocol: udp }
+  - { ip: 127.0.0.1, port: 53, protocol: udp }
 ```
 
 ## Example Playbook connectivity-test.yml
@@ -81,52 +80,32 @@ ansible-playbook connectivity-test.yml --extra-vars "inventory=all-dev" -i hosts
 
 ```ansible
 TASK [setup] *******************************************************************
-ok: [centos5]
 ok: [centos7]
 
 TASK [connectivity-test : Install dependant packages in RedHat based machines] *
-ok: [centos5] => (item=[u'nc'])
 ok: [centos7] => (item=[u'nc'])
 
 TASK [connectivity-test : Get source IP based on destination IP] ***************
-ok: [centos7] => (item=source ip: 192.168.56.13, destination ip: 192.168.56.10)
-ok: [centos5] => (item=source ip: 192.168.56.10, destination ip: 192.168.56.10)
-ok: [centos7] => (item=source ip: 192.168.56.13, destination ip: 192.168.56.10)
-ok: [centos5] => (item=source ip: 192.168.56.10, destination ip: 192.168.56.10)
-ok: [centos7] => (item=source ip: 192.168.56.13, destination ip: 192.168.56.13)
-ok: [centos5] => (item=source ip: 192.168.56.10, destination ip: 192.168.56.13)
+ok: [centos7] => (item=source ip: 127.0.0.1, destination ip: 127.0.0.1)
+ok: [centos7] => (item=source ip: 127.0.0.1, destination ip: 127.0.0.1)
+ok: [centos7] => (item=source ip: 192.168.56.9, destination ip: 192.168.56.10)
 
 TASK [connectivity-test : debug] ***********************************************
 
 TASK [connectivity-test : test network connectivity] ***************************
-ok: [centos7] => (item=source ip: 192.168.56.13, destination ip: 192.168.56.10, port: 22, protocol: tcp, time: 2017-02-22 13:21:23.044606, stdout: SSH-2.0-OpenSSH_4.3, stderr: Ncat: Version 6.40 ( http://nmap.org/ncat )
-Ncat: Connected to 192.168.56.10:22.
-Ncat: 0 bytes sent, 20 bytes received in 0.01 seconds.
+ok: [centos7] => (item=source ip: 192.168.56.9, destination ip: 192.168.56.10, port: 22, protocol: tcp, time: 2019-07-09 23:02:56.518272, stdout: SSH-2.0-OpenSSH_7.2p2 Ubuntu-4ubuntu2.8, stderr: Connection to 192.168.56.10 22 port [tcp/ssh] succeeded!
 
 )
-ok: [centos5] => (item=source ip: 192.168.56.10, destination ip: 192.168.56.10, port: 22, protocol: tcp, time: 2017-02-22 13:21:22.498293, stdout: SSH-2.0-OpenSSH_6.5
-Connection to 192.168.56.10 22 port [tcp/ssh] succeeded!, stderr:
+ok: [centos7] => (item=source ip: 127.0.0.1, destination ip: 127.0.0.1, port: 53, protocol: udp, time: 2019-07-09 23:03:12.337049, stdout: , stderr: Connection to 127.0.0.1 53 port [udp/domain] succeeded!
 
 )
-failed: [centos7] => (item=source ip: 192.168.56.13, destination ip: 192.168.56.10, port: 5000, protocol: tcp, time: 2017-02-22 13:21:23.307189, stdout: , stderr: Ncat: Version 6.40 ( http://nmap.org/ncat )
-Ncat: Connection refused.
-
-)
-failed: [centos5] => (item=source ip: 192.168.56.10, destination ip: 192.168.56.10, port: 5000, protocol: tcp, time: 2017-02-22 13:21:22.824379, stdout: , stderr: nc: connect to 192.168.56.10 port 5000 (tcp) failed: Connection refused
-
-)
-failed: [centos7] => (item=source ip: 192.168.56.13, destination ip: 192.168.56.13, port: 443, protocol: tcp, time: 2017-02-22 13:21:23.574678, stdout: , stderr: Ncat: Version 6.40 ( http://nmap.org/ncat )
-Ncat: Connection refused.
-
-)
-failed: [centos5] => (item=source ip: 192.168.56.10, destination ip: 192.168.56.13, port: 443, protocol: tcp, time: 2017-02-22 13:21:23.102524, stdout: , stderr: nc: connect to 192.168.56.13 port 443 (tcp) failed: No route to host
+failed: [centos7] (item=source ip: 192.168.56.9, destination ip: 192.168.56.10, port: 5000, protocol: tcp, time: 2019-07-09 23:03:33.893978, stdout: , stderr: nc: connect to 192.168.56.10 port 5000 (tcp) timed out: Operation now in progress
 
 )
 
 TASK [connectivity-test : debug] ***********************************************
 
 PLAY RECAP *********************************************************************
-centos5                    : ok=3    changed=0    unreachable=0    failed=1  
 centos7                    : ok=3    changed=0    unreachable=0    failed=1  
 
 ```
