@@ -41,7 +41,8 @@
 
 - name: test network connectivity
   become: no
-  command: nc -v -w {{ connectivity_test_wait_default }} -i {{ connectivity_test_wait_default }} -s {{ item.stdout }} {{ item.item.ip }} {{ item.item.port }}
+  # command: nc -v -w {{ connectivity_test_wait_default }} -i {{ connectivity_test_wait_default }} -s {{ item.stdout }} {{ item.item.ip }} {{ item.item.port }}
+  command: "nc -v -w {{ connectivity_test_wait_default }} -i {{ connectivity_test_wait_default }} {{ connectivity_test_udp_command if (item.item.protocol|d(false) == 'udp') else '' }} -s {{ item.stdout }} {{ item.item.ip }} {{ item.item.port }}"
   register: network_test_result
   with_items: "{{ source_ip_result.results }}"
   changed_when: False
