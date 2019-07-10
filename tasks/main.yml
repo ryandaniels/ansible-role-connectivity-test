@@ -1,0 +1,58 @@
+---
+- name: debug proxy
+  debug: var=proxy_env
+  when: debug_enabled_default | bool
+
+- name: Install dependent packages in RedHat based machines
+  package:
+    name: "{{ item }}"
+    state: present
+#    update_cache: yes
+  environment: "{{ proxy_env }}"
+  when: ansible_os_family == "RedHat"
+  with_items:
+  - nc
+  - iproute
+  - gawk
+  tags: connectivity_install_pkg
+
+- name: debug system info
+  debug:
+    msg: "System {{ inventory_hostname }} has gateway {{ ansible_default_ipv4.gateway }}"
+  when: debug_enabled_default | bool and ansible_default_ipv4.gateway is defined
+
+- name: Get source IP based on destination IP
+  become: no
+#  shell: ip route get 192.168.2.2|awk 'NR==1{print $NF}'
+  shell: set -o pipefail && /sbin/ip route get {{ item.ip }} |awk 'NR==1{print $NF}'
+  args:
+    executable: /bin/bash
+  register: source_ip_result
+  with_items: "{{ connectivity_test_destinations }}"
+  changed_when: False
+  loop_control:
+    label: "source ip: {{ source_ip_result.stdout }}, destination ip: {{ item.ip }}"
+
+- name: debug source_ip_result
+  debug: var=source_ip_result
+  when: debug_enabled_default | bool
+#- debug: msg="item.item={{item.item}}, item.stdout={{item.stdout}}, item.stderr={{item.stderr}}, item.changed={{item.changed}}, cmd={{ item.cmd }}"
+#  with_items: "{{source_ip_result.results}}"
+
+- name: test network connectivity
+  become: no
+  command: nc -v -w {{ connectivity_test_wait_default }} -i {{ connectivity_test_wait_default }} -s {{ item.stdout }} {{ item.item.ip }} {{ item.item.port }}
+  register: network_test_result
+  with_items: "{{ source_ip_result.results }}"
+  changed_when: False
+#  ignore_errors: True
+  failed_when: (" Connected to " not in network_test_result.stderr) and ("Connection to " not in network_test_result.stderr)
+  loop_control:
+#    label: "source ip: {{item.stdout}}, destination ip: {{ item.item }}, port: {{ item.item.port }}, stdout: {{ network_test_result.stdout }}, stderr: {{ network_test_result.stderr | replace('\n', '') }}\n\n"
+    label: "source ip: {{ item.stdout }}, destination ip: {{ item.item.ip }}, port: {{ item.item.port }}, protocol: {{ 'udp' if (item.item.protocol|d(false) == 'udp') else 'tcp' }}, time: {{ network_test_result.start }}, stdout: {{ network_test_result.stdout }}, stderr: {{ network_test_result.stderr }}\n\n" # noqa 204
+
+- name: debug network_test_result
+  debug: var=network_test_result
+  when: debug_enabled_default | bool
+#- debug: msg="item.item={{item.item.stdout}}, item.stdout={{item.stdout}}, item.stderr={{item.stderr}}, item.changed={{item.changed}}, cmd={{ item.cmd }}"
+#  with_items: "{{network_test_result.results}}"

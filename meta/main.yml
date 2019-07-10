@@ -1,0 +1,33 @@
+---
+galaxy_info:
+  role_name: connectivity-test
+  author: Ryan Daniels
+  description: Role to test for network issues to specified IP and port (TCP or UDP) from your Ansible hosts.  
+  license: MIT
+  min_ansible_version: 2.6
+  platforms:
+    - name: EL
+      versions:
+        - all
+    - name: GenericUNIX
+      versions:
+        - all
+        - any
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+    - name: GenericLinux
+      versions:
+        - all
+        - any
+    - name: Debian
+      versions:
+        - all
+  galaxy_tags:
+    - system
+    - users
+
+dependencies: []

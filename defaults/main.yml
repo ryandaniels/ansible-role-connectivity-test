@@ -1,0 +1,5 @@
+---
+debug_enabled_default: false
+connectivity_test_wait_default: 5
+connectivity_test_udp_command: "-u"
+proxy_env: []
