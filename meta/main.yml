@@ -16,12 +16,18 @@ galaxy_info:
     - name: Fedora
       versions:
         - all
+    - name: Ubuntu
+      versions:
+        - all
     - name: GenericLinux
       versions:
         - all
         - any
+    - name: Debian
+      versions:
+        - all
   galaxy_tags:
     - system
-    - network
+    - networking
 
 dependencies: []
