@@ -46,6 +46,8 @@ proxy_env: []
 
 ## Example config file (group_vars/xxx/connectivity-test-vars.yml)
 
+TCP protocol used by default (doesn't need to be specified).  
+
 ```yaml
 ---
 connectivity_test_destinations:
