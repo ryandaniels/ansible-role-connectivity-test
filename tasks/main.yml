@@ -36,8 +36,9 @@
 
 - name: Get source IP based on destination IP
   become: no
-#  shell: ip route get 192.168.2.2|awk 'NR==1{print $NF}'
-  shell: set -o pipefail && /sbin/ip route get {{ item.ip }} |awk 'NR==1{print $NF}'
+#   shell: ip route get 192.168.2.2|awk 'NR==1{print $NF}'
+#   shell: set -o pipefail && /sbin/ip route get {{ item.ip }} |awk 'NR==1{print $NF}'
+  shell: set -o pipefail && /sbin/ip route get {{ item.ip }} |awk -F"src " 'NR==1{split($2,a," ");print a[1]}'
   args:
     executable: /bin/bash
   register: source_ip_result
